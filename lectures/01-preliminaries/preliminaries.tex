@@ -11,22 +11,22 @@
 
 \begin{abstract}
   Higher order type compilation needs to discuss several intermediate languages with interesting type structure. Most of those languages are built on top
-  of $F^\omega$, the polymorphic lambda calculus with type
-  functions. The first lecture is devoted to understanding $F^\omega$
+  of $F_\omega$, the polymorphic lambda calculus with type
+  functions. The first lecture is devoted to understanding $F_\omega$
   so that we may avoid discussing the same type theory over and over
   again later in the course.
 \end{abstract}
 
 \begin{section}{System F}
 
-Before moving to our discussion of $F^\omega$ it's well worth
+Before moving to our discussion of $F_\omega$ it's well worth
 reviewing plain System F, the polymorphic lambda calculus. System F is
 composed of two syntactic categories: types and terms.
 
 \[
 \begin{array}{lcl}
   \tau & ::= & \alpha \mid \tau \to \tau \mid \forall \alpha. \tau\\
-  e & ::= & x \mid \lambda x : \tau. e \mid e\ e \mid
+  e & ::= & x \mid \lambda x : \tau. e \mid e \, e \mid
             \Lambda \alpha. e \mid e[\tau]
 \end{array}
 \]
@@ -85,9 +85,9 @@ that {\tt list} is expressible, but we need to be sure to classify our
 types properly so to distinguish between things which can and can't be
 inhabited by terms.
 
-\section{On to $F^\omega$}
+\section{On to $F_\omega$}
 
-To work our way towards $F^\omega$ we start by making a small change
+To work our way towards $F_\omega$ we start by making a small change
 to the syntax of System F, we add a notion of kinds. These classify
 types just as types classify terms. We'll only add one kind though:
 \type. We replace $\Gamma \vdash e : \type$ with the ostensibly more
@@ -110,7 +110,7 @@ quantifying over types. Next, we changed $\tau$ to $c$. $c$ denotes the syntacti
 conversion. The reader is left to fix the typing rules to match the
 new syntax.
 
-Now to get $F^\omega$ we make two critical changes
+Now to get $F_\omega$ we make two critical changes
 
 \[
 \begin{array}{lcl}
@@ -185,7 +185,7 @@ Next we present the typing (kinding?) rules for types, which are basically those
             {\Gamma \vdash c_1 \to c_2 : \type}\and
 \end{mathpar}
 
-And thus we have the typing rules for $F^\omega$. Note that we can
+And thus we have the typing rules for $F_\omega$. Note that we can
 omit the well-formedness checks on kinds because all kinds are
 trivially well-formed.
 
@@ -226,7 +226,7 @@ so that we can freely ``reduce'' types in order to perform typechecking. This me
         \end{mathpar}
 \end{section}
 
-Brief aside: in $F^\omega$, kinds classify types into disjoint sets, so given constructors can only possibly be ``equivalent at'' the kind they both belong to. Hence at this point the notation $\Gamma \vdash c_1 \equiv c_2 : k$ is somewhat superfluous, but we introduce it to maintain extensibility with later material. In particular, we will eventually study calculi in which given constructors may be equivalent at one kind and unequivalent at another. This will also turn out to be useful shortly when we describe an algorithm for deciding constructor equivalence in $F^\omega$.
+Brief aside: in $F_\omega$, kinds classify types into disjoint sets, so given constructors can only possibly be ``equivalent at'' the kind they both belong to. Hence at this point the notation $\Gamma \vdash c_1 \equiv c_2 : k$ is somewhat superfluous, but we introduce it to maintain extensibility with later material. In particular, we will eventually study calculi in which given constructors may be equivalent at one kind and unequivalent at another. This will also turn out to be useful shortly when we describe an algorithm for deciding constructor equivalence in $F_\omega$.
 
 Returning to our specification of definitional equality.
 
@@ -251,8 +251,8 @@ Returning to our specification of definitional equality.
 
 Our example from before works as we should hope (given some notion of primitive type $int$), with $\cdot \vdash f \ [\lambda \alpha : \type. \; \alpha] \ 12 : \tau$ now being derivable.
 
-\section{Souped-up $F^\omega$}
-Now we will introduce a couple of modest extensions that are not part of $F^\omega$ as typically presented. The reason we want to do this is because when we develop the elaboration of modules into $F^\omega$ it turns out we will need {\bf product kinds} to explain them.
+\section{Souped-up $F_\omega$}
+Now we will introduce a couple of modest extensions that are not part of $F_\omega$ as typically presented. The reason we want to do this is because when we develop the elaboration of modules into $F_\omega$ it turns out we will need {\bf product kinds} to explain them.
 
   \[
   \begin{array}{lcl}
