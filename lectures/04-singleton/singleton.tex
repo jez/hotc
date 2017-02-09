@@ -2,7 +2,7 @@
 \usepackage[a5paper, margin=0.5in]{geometry}
 \usepackage{amsmath, amssymb, latexsym}
 \usepackage{mathpartir, proof}
-\usepackage{hyperref}
+\usepackage[linktoc=all]{hyperref}
 
 \title{The Singleton Kind Calculus}
 \date{February 2, 2017}
@@ -68,7 +68,7 @@ such as $(\lambda \alpha : \type. \; \alpha) \; \verb|int|$. The other new kind
 constructs, $\Pi \alpha : k. \; k$ and $\Sigma \alpha : k. \; k$ (which are
 called dependent function spaces and dependent sums respectively), exist to
 solve the analogous problem for kinding assignments to polymorphic types in
-signatures:
+signatures. Specifically, consider this example:
 
 \begin{verbatim}
 sig
@@ -76,7 +76,30 @@ sig
 end
 \end{verbatim}
 
-This will become more clear once the rules are enumerated.
+We can say that
+
+\[
+  \begin{array}{l}
+    \verb|t| : \Pi \alpha : \type. \; \mathcal S(\alpha)
+  \end{array}
+\]
+
+\(\Sigma\) kinds are used to kind types that are assigned to abstract types. In
+the signature
+
+\begin{verbatim}
+    type t
+    type s = t
+\end{verbatim}
+
+we say that
+
+\[
+  \begin{array}{l}
+    \verb|t| : \type \\
+    \verb|s| : \Sigma \alpha : \type. \; \mathcal S(\alpha)
+  \end{array}
+\]
 
 
 \section{Definitions}
@@ -97,7 +120,8 @@ In this section the following judgements will be defined.
 \]
 A complete list would also include the judgement $\Gamma \vdash \tau : \type$
 but these rules are exactly the same as in $F_\omega$ so we will omit them.
-Begining with the rules for well-formed kinds:
+
+\subsection{Well-Formed Kinds}
 
 \begin{mathpar}
   \inferrule[3a]{\quad}{\Gamma \vdash \tau : \kind} \and
@@ -120,7 +144,7 @@ Begining with the rules for well-formed kinds:
   }
 \end{mathpar}
 
-Definitional equality of kinds:
+\subsection{Definitional Equality of Kinds}
 
 \begin{mathpar}
   \inferrule[3e]{
@@ -160,7 +184,10 @@ Definitional equality of kinds:
   }
 \end{mathpar}
 
-Kind membership --- which constructors belong to a given kind:
+\subsection{Kind Membership}
+
+This judgement defines which constructors belong to a given kind.
+
 \begin{mathpar}
   \inferrule[3k]{
     \alpha : k \in \Gamma
@@ -222,5 +249,166 @@ it behaves like a product. To avoid the obvious naming confusion here, we will
 try our best to call $\Sigma \alpha : k_1. \ k_2$ a "dependent sum" and $\Pi
 \alpha : k_1. \ k_2$ a "dependent function space" or sometimes just a "dependent
 function" because the former is a bit of a mouthful.
+
+\subsection{Subkinding}
+
+\begin{mathpar}
+    \inferrule[3t]{
+      \Gamma \vdash k : \kind
+    }{
+      \Gamma \vdash k \leq k
+    } \and
+
+    \inferrule[3u]{
+      \Gamma \vdash k_1 \leq k_2 \quad \Gamma \vdash k_2 \leq k_3
+    }{
+      \Gamma \vdash k_1 \leq k_3
+    } \and
+
+    \inferrule[3v]{
+      \Gamma \vdash c : \type
+    }{
+      \Gamma \vdash S(c) \leq \type
+    } \and
+
+    \inferrule[3w]{
+      \Gamma \vdash c \equiv c' : \type
+    }{
+      \Gamma \vdash S(c) \leq S(c') : \type
+    } \and
+
+    \inferrule[3x]{
+      \Gamma \vdash k_1' \leq k_1 \quad \Gamma \alpha : k_1 \vdash k_2 : \kind \quad \Gamma, \alpha : k_1' \vdash k_2 \leq k_2'
+    }{
+      \Gamma \vdash \Pi \alpha : k_1. \; k_2 \leq \Pi \alpha : k_1'. \; k_2'
+    } \and
+
+    \inferrule[3y]{
+      \Gamma \vdash k_1 \leq k_1' \quad \Gamma, \alpha : k_1 \vdash k_2 \leq k_2' \quad \Gamma, \alpha : k_1' \vdash k_2' : \kind
+    }{
+      \Gamma \vdash \Sigma \alpha : k_1. \; k_2 \leq \Sigma \alpha : k_1'. \; k_2'
+    } \and
+
+    \inferrule[3z]{
+      \Gamma \vdash c : k \quad \Gamma \vdash k \leq k'
+    }{
+      \Gamma \vdash c : k'
+    } \and
+
+    \inferrule[3aa]{
+      \Gamma \vdash k \equiv k'
+    }{
+      \Gamma \vdash k \leq k'
+    }
+\end{mathpar}
+
+\subsection{Definitional Equality of Constructors}
+
+\begin{mathpar}
+    \inferrule[3ab]{
+      \Gamma \vdash c : k
+    }{
+      \Gamma \vdash c \equiv c : k
+    } \and
+
+    \inferrule[3ac]{
+      \Gamma \vdash c_1 \equiv c_2 : k
+    }{
+      \Gamma \vdash c_2 \equiv c_1 : k
+    } \and
+
+    \inferrule[3ad]{
+      \Gamma \vdash c_2 : k \quad \Gamma, \alpha : k \vdash c_1 : k'
+    }{
+      \Gamma \vdash (\lambda \alpha : k. \; c_1) \; c_2 \equiv [c_2/\alpha]c_1 : [c_2/\alpha]k'
+    } \and
+
+    \inferrule[3ae]{
+      \Gamma \vdash c_1 : k_1 \quad \Gamma \vdash c_2 : k_2
+    }{
+      \Gamma \vdash \pi_1 \langle c_1, c_2 \rangle \equiv c_1
+    } \and
+
+    \inferrule[3af]{
+      \Gamma \vdash c_1 : k_1 \quad \Gamma \vdash c_2 : k_2
+    }{
+      \Gamma \vdash \pi_2\langle c_1, c_2 \rangle \equiv c_2
+    } \and
+
+    \inferrule[3ag]{
+      \Gamma \vdash c_1 \equiv c_2 : k \quad \Gamma \vdash k \leq k'
+    }{
+      \Gamma \vdash c_1 \equiv c_2 : k'
+    } \and
+
+    \inferrule[3ah]{
+      \Gamma \vdash c \equiv c' : \type
+    }{
+      \Gamma \vdash c \equiv c' : S(c)
+    } \and
+
+    \inferrule[3ai]{
+      \Gamma \vdash c : S(c')
+    }{
+      \Gamma \vdash c \equiv c' : \type
+    }
+
+\end{mathpar}
+
+\begin{mathpar}
+    \inferrule[3aj]{
+      \Gamma \vdash k_1 \equiv k_2 : \kind \quad \Gamma, \alpha : k_1 \vdash c \equiv c' : k_2
+    }{
+      \Gamma \vdash \lambda \alpha : k_1. \; c \equiv \lambda \alpha : k_1'. \; c' : \Pi \alpha : k_1. \; k_2
+    } \and
+
+    \inferrule[3ak]{
+      \Gamma \vdash c \equiv c' : \Pi \alpha : k. \; k' \quad \Gamma \vdash c_2 \equiv c_2' : k
+    }{
+      \Gamma \vdash c_1 \; c_2 \equiv c_1' \; c_2' : [c_2/\alpha]k'
+    } \and
+
+    \inferrule[3al]{
+      \Gamma \vdash c_1 \equiv c_1' : k_1 \quad \Gamma \vdash c_2 \equiv c_2' : [c_1/\alpha]k_2 \quad \Gamma, \alpha : k_1 \vdash k_2 : \kind
+    }{
+      \Gamma \vdash \langle c_1, c_2 \rangle \equiv \langle c_1', c_2' \rangle : \Sigma \alpha : k_1. \; k_2
+    } \and
+
+    \inferrule[3am]{
+      \Gamma \vdash c \equiv c' : \Sigma \alpha : k_1. \; k_2
+    }{
+      \Gamma \vdash \pi_1 \; c \equiv \pi_1 \; c' : k_1
+    } \and
+
+    \inferrule[3an]{
+      \Gamma \vdash c \equiv c' : \Sigma \alpha : k_1. \; k_2
+    }{
+      \Gamma \vdash \pi_2 \; c \equiv \pi_2 \; c' : [\pi_1 \; c/\alpha] k_2
+    } \and
+
+    \inferrule[3an]{
+      \Gamma \vdash c_1 \equiv c_1' : \type \quad \Gamma \vdash c_2 \equiv c_2' : \type
+    }{
+      \Gamma \vdash c_1 \to c_2 \equiv c_1' \to c_2' : \type
+    } \and
+
+    \inferrule[3ao]{
+      \Gamma \vdash k \equiv k' : \kind \quad \Gamma, \alpha : k \vdash c \equiv c' : \type
+    }{
+      \Gamma \vdash \forall \alpha : k. \; c \equiv \forall \alpha : k'. c' : \type
+    } \and
+
+    \inferrule[3ap]{
+      \Gamma, \alpha : k_1 \vdash c \; \alpha \equiv c' \; \alpha : k_2 \quad \Gamma \vdash c : \Pi \alpha : k_1. \; k_2 \Gamma \vdash c' : \Pi \alpha : k_1. \; k_2''
+    }{
+      \Gamma \vdash c \equiv c' : \Pi \alpha : k_1. \; k_2
+    } \and
+
+    \inferrule[3aq]{
+      \Gamma \vdash \pi_1 \; c \equiv \pi_1 \; c' \quad \Gamma, \alpha : k_1 \vdash k_2 : \kind \quad \Gamma \vdash \pi_2 \; c \equiv \pi_2 \; c' : [\pi_1 \; c/\alpha]k_2
+    }{
+      \Gamma \vdash c \equiv c' : \Sigma \alpha : k_1. \; k_2
+    }
+\end{mathpar}
 
 \end{document}
